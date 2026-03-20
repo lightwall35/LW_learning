@@ -1,0 +1,892 @@
+import warnings
+warnings.filterwarnings("ignore")
+import feedparser
+import requests
+from newsplease import NewsPlease
+import os
+from datetime import datetime
+import re
+import time
+
+# ================= 1. 获取新闻 =================
+rss_url = "https://abcnews.go.com/abcnews/internationalheadlines"
+news_feed = feedparser.parse(rss_url)
+article_list=[]
+
+if len(news_feed.entries) == 0:
+    print("没有找到新闻喵！")
+    exit()
+
+for i in range(0,5):
+    target_url = news_feed.entries[i].link  
+    
+    print("\nnews-please正在提取纯净正文")
+
+
+    article = NewsPlease.from_url(target_url)
+    clean_text = re.sub(r'^[^.]{2,60}?--\s*', '', article.maintext)
+    clean_text = clean_text.replace("U.S.", "US").replace("U.K.", "UK")
+    article_list.append(clean_text)
+
+result = "\n\n\nThe next:\n\n\n".join(article_list)
+
+
+print(result)
+print(" 新闻提取成功，准备配音...")
+start_time = time.perf_counter()
+# ================= 2. 准备配音参数 =================
+data = {
+    "text": result,                   
+    "text_lang": "en",                          
+    "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\nahida等11个文件\nahida\v1\推理音频\新鲜感，就是来源于生活中的小小仪式哦。.wav",  # 【修复】加了 r 防止路径错乱
+    "prompt_text": "新鲜感，就是来源于生活中的小小仪式哦。",            
+    "prompt_lang": "zh",            
+    "top_k": 5,                   
+    "top_p": 1,                   
+    "temperature": 1,             
+    "text_split_method": "cut5",  
+    "batch_size": 1,              
+    "batch_threshold": 0.75,      
+    "split_bucket": True,         
+    "speed_factor": 1.0,          
+    "fragment_interval": 0.3,     
+    "seed": -1,                   
+    "parallel_infer": True,         
+    "repetition_penalty": 1.35,   
+    "sample_steps": 32,           
+    "super_sampling": False,      
+    "streaming_mode": False,      
+    "overlap_length": 2,          
+    "min_chunk_length": 16,
+}
+
+# ================= 3. 发送给 GPT-SoVITS =================
+
+print("正在生成音频，因为是长新闻，可能需要稍等片刻...")
+response = requests.post("http://127.0.0.1:9880/tts", json=data)
+
+
+if response.status_code != 200:
+    raise Exception(f"请求 GPT-SoVITS 出现错误: 状态码 {response.status_code}, 信息: {response.text}")
+
+# ================= 4. 保存音频 =================
+save_folder = r"E:\pycode\otp"
+time_str = datetime.now().strftime("%Y%m%d%H%M%S")
+full_path = os.path.join(save_folder, f"{time_str}.wav")
+end_time = time.perf_counter()
+elapsed_time = end_time - start_time
+print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")
+
+with open(full_path, "wb") as f:
+    f.write(response.content)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+import warnings
+warnings.filterwarnings("ignore")
+import feedparser
+import requests
+from newsplease import NewsPlease
+import os
+from datetime import datetime
+import re
+import time
+import io
+from pydub import AudioSegment  
+
+# ================= 1. 获取新闻 =================
+rss_url = "https://abcnews.go.com/abcnews/internationalheadlines"
+news_feed = feedparser.parse(rss_url)
+article_list=[]
+
+if len(news_feed.entries) == 0:
+    print("没有找到新闻喵！")
+    exit()
+
+for i in range(0,5):
+    target_url = news_feed.entries[i].link  
+    
+    print("\nnews-please正在提取纯净正文")
+
+
+    article = NewsPlease.from_url(target_url)
+    clean_text = re.sub(r'^[^.]{2,60}?--\s*', '', article.maintext)
+    clean_text = clean_text.replace("U.S.", "US").replace("U.K.", "UK")
+    article_list.append(clean_text)
+
+result = "\n\n\nThe next:\n\n\n".join(article_list)
+
+
+print(result)
+print(" 新闻提取成功，准备配音...")
+start_time = time.perf_counter()
+# ================= 2. 准备配音参数 =================
+data = {
+    "text": result,                   
+    "text_lang": "en",                          
+    "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\nahida等11个文件\nahida\v1\推理音频\新鲜感，就是来源于生活中的小小仪式哦。.wav",  # 【修复】加了 r 防止路径错乱
+    "prompt_text": "新鲜感，就是来源于生活中的小小仪式哦。",            
+    "prompt_lang": "zh",            
+    "top_k": 5,                   
+    "top_p": 1,                   
+    "temperature": 1,             
+    "text_split_method": "cut5",  
+    "batch_size": 1,              
+    "batch_threshold": 0.75,      
+    "split_bucket": True,         
+    "speed_factor": 1.0,          
+    "fragment_interval": 0.3,     
+    "seed": -1,                   
+    "parallel_infer": True,         
+    "repetition_penalty": 1.35,   
+    "sample_steps": 32,           
+    "super_sampling": False,      
+    "streaming_mode": False,      
+    "overlap_length": 2,          
+    "min_chunk_length": 16,
+}
+
+# ================= 3. 发送给 GPT-SoVITS =================
+
+print("正在生成音频，因为是长新闻，可能需要稍等片刻...")
+response = requests.post("http://127.0.0.1:9880/tts", json=data)
+
+
+if response.status_code != 200:
+    raise Exception(f"请求 GPT-SoVITS 出现错误: 状态码 {response.status_code}, 信息: {response.text}")
+
+# ================= 4. 保存音频 =================
+virtual_file = io.BytesIO(response.content)
+audio = AudioSegment.from_file(virtual_file, format="wav")
+audio2 = AudioSegment.from_file(r"E:\music\星茶会.m4a", format="m4a")
+audio2 = audio2 - 10
+if len(audio) > len(audio2):
+    loops_needed = (len(audio) // len(audio2)) + 1
+    audio2 = audio2 * loops_needed
+if len(audio) < len(audio2):
+    audio2 = audio2[:len(audio)].fade_out(2000)
+overlayed_audio = audio.overlay(audio2, position=0)
+save_folder = r"E:\pycode\otp"
+time_str = datetime.now().strftime("%Y%m%d%H%M%S")
+full_path = os.path.join(save_folder, f"{time_str}.wav")
+end_time = time.perf_counter()
+elapsed_time = end_time - start_time
+print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")
+
+overlayed_audio.export(full_path, format="wav")
+
+
+
+==========================================================================================================
+
+
+
+import warnings
+warnings.filterwarnings("ignore")
+import feedparser
+import requests
+from newsplease import NewsPlease
+import os
+from datetime import datetime
+import re
+import time
+import io
+from pydub import AudioSegment 
+import random
+
+# ================= 1. 获取新闻 =================
+rss_url = "https://abcnews.go.com/abcnews/internationalheadlines"
+news_feed = feedparser.parse(rss_url)
+article_list=[]
+
+if len(news_feed.entries) == 0:
+    print("没有找到新闻喵！")
+    exit()
+
+for i in range(0,5):
+    target_url = news_feed.entries[i].link  
+    
+    print("\nnews-please正在提取纯净正文")
+
+
+    article = NewsPlease.from_url(target_url)
+    clean_text = re.sub(r'^.{0,80}?--\s*', '', article.maintext)
+    clean_text = clean_text.replace("U.S.", "US").replace("U.K.", "UK")
+    article_list.append(clean_text)
+
+result = "\n\n\nThe next:\n\n\n".join(article_list)
+
+
+print(result)
+print(" 新闻提取成功，准备配音...")
+start_time = time.perf_counter()
+# ================= 2. 准备配音参数 =================
+data = {
+    "text": result,                   
+    "text_lang": "en",                          
+    "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\nahida等11个文件\nahida\v1\推理音频\新鲜感，就是来源于生活中的小小仪式哦。.wav",  # 【修复】加了 r 防止路径错乱
+    "prompt_text": "新鲜感，就是来源于生活中的小小仪式哦。",            
+    "prompt_lang": "zh",            
+    "top_k": 5,                   
+    "top_p": 1,                   
+    "temperature": 1,             
+    "text_split_method": "cut5",  
+    "batch_size": 1,              
+    "batch_threshold": 0.75,      
+    "split_bucket": True,         
+    "speed_factor": 1.0,          
+    "fragment_interval": 0.3,     
+    "seed": -1,                   
+    "parallel_infer": True,         
+    "repetition_penalty": 1.35,   
+    "sample_steps": 32,           
+    "super_sampling": False,      
+    "streaming_mode": False,      
+    "overlap_length": 2,          
+    "min_chunk_length": 16,
+}
+
+# ================= 3. 发送给 GPT-SoVITS =================
+
+print("正在生成音频，因为是长新闻，可能需要稍等片刻...")
+response = requests.post("http://127.0.0.1:9880/tts", json=data)
+
+
+if response.status_code != 200:
+    raise Exception(f"请求 GPT-SoVITS 出现错误: 状态码 {response.status_code}, 信息: {response.text}")
+
+# ================= 4. 保存音频 =================
+virtual_file = io.BytesIO(response.content)
+silence = AudioSegment.silent(duration=2000)
+audio = AudioSegment.from_file(virtual_file, format="wav")
+audio_bgm =  AudioSegment.from_file(r"E:\music\星茶会.m4a", format="m4a")
+
+bgm_folder = r"E:\music"
+candidate_bgms = []
+valid_exts = (".mp3", ".wav", ".m4a", ".flac", ".ogg")
+if os.path.exists(bgm_folder):
+    for filename in os.listdir(bgm_folder):
+        if filename.endswith(valid_exts):
+            candidate_bgms.append(os.path.join(bgm_folder, filename))
+target_length = len(audio) + 2000
+if candidate_bgms:
+    random.shuffle(candidate_bgms)
+
+current_bgm_index = 0
+while len(audio_bgm) < target_length:
+    if candidate_bgms:
+        random_path = candidate_bgms[current_bgm_index]
+        next_bgm = AudioSegment.from_file(random_path)
+        audio_bgm = audio_bgm + silence + next_bgm
+        current_bgm_index += 1
+        if current_bgm_index >= len(candidate_bgms):
+            current_bgm_index = 0
+            random.shuffle(candidate_bgms)
+    else:
+        audio_bgm = audio_bgm + silence + audio_bgm
+audio_bgm = audio_bgm - 15
+audio_bgm = audio_bgm[:target_length].fade_out(2000)
+overlayed_audio = audio_bgm.overlay(audio, position=0)
+save_folder = r"E:\pycode\otp"
+time_str = datetime.now().strftime("%Y%m%d%H%M%S")
+full_path = os.path.join(save_folder, f"{time_str}.wav")
+end_time = time.perf_counter()
+elapsed_time = end_time - start_time
+
+
+overlayed_audio.export(full_path, format="wav")
+print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")
+====================================================================================================
+import streamlit as st
+import subprocess
+import time
+import os
+from streamlit_advanced_audio import audix, WaveSurferOptions
+
+
+
+BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1080" 
+BLUR_RADIUS = "6px" 
+MAIN_TITLE = "Embark on your audio journey with me" 
+
+# ⭐️ 接口 4：批处理文件的绝对路径
+BAT_PATH = "E:\\pycode\\auto.bat"
+
+# ⭐️ 接口 5：存放生成音频的文件夹绝对路径（请替换成你实际存放音频的目录哦）
+AUDIO_DIR = "E:\\pycode\\otp"
+
+# ==========================================
+
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
+
+# 初始化铃花水仙的记忆小本子
+if 'show_list' not in st.session_state:
+    st.session_state.show_list = False      # 控制是否展开音频列表
+if 'selected_audio' not in st.session_state:
+    st.session_state.selected_audio = None  # 记录当前选中的音频文件路径
+
+# 🎨 注入特制的 CSS 魔法（保持了淡绿色渐变的风格哦）
+custom_css = f"""
+<style>
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
+
+    .stApp {{ background-color: transparent; }}
+    .stApp::before {{
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-image: url("{BACKGROUND_IMAGE}");
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        filter: blur({BLUR_RADIUS}); 
+        z-index: -1; 
+    }}
+
+    .top-nav {{
+        display: flex; justify-content: flex-end; padding: 20px 50px;
+        font-family: 'Helvetica Neue', sans-serif;
+    }}
+    .nav-item {{
+        font-size: 18px; color: #2e7d32; font-weight: 500; cursor: pointer; transition: color 0.3s ease;
+    }}
+    .nav-item:hover {{ color: #81c784; }}
+
+    .main-title {{
+        font-size: 4.5rem; font-weight: 700; line-height: 1.1;
+        background: linear-gradient(135deg, #2e7d32 0%, #81c784 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 30px; font-family: 'Helvetica Neue', sans-serif;
+        animation: fadeInUp 1s ease-out;
+    }}
+
+    /* 统一样式：让所有的按钮都变成淡绿色圆角 */
+    div.stButton > button {{
+        background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+        color: white; border: none; border-radius: 40px; padding: 10px 40px;
+        font-size: 18px; font-weight: bold;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 8px 20px rgba(102, 187, 106, 0.3);
+        margin-top: 10px; margin-bottom: 10px;
+    }}
+    div.stButton > button:hover {{
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(102, 187, 106, 0.5); color: white;
+    }}
+
+    .audio-glass-box {{
+        background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px; padding: 30px;
+        box-shadow: 0 10px 40px rgba(129, 199, 132, 0.2); animation: fadeIn 1s ease-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px;
+        position: relative !important;
+        top: -40px !important;
+    }}
+
+    @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: scale(0.95); }} to {{ opacity: 1; transform: scale(1); }} }}
+
+
+    div[data-baseweb="select"] > div {{
+        background-color: rgba(255, 255, 255, 0.4) !important; 
+        border-radius: 15px !important; 
+        border: 2px solid transparent !important; 
+    }}
+    
+    /* 强行改变悬浮时的边框颜色 */
+    div[data-baseweb="select"] > div:hover {{
+        border: 2px solid #a5d6a7 !important; 
+    }}
+
+    /* 2. 强行改变框内选中的文字颜色 */
+    div[data-baseweb="select"] span {{
+        color: #2e7d32 !important; 
+        font-weight: bold !important;
+    }}
+
+    
+    div[data-baseweb="popover"] ul {{
+        background-color: #81c784 !important; 
+        border-radius: 15px !important;
+        padding: 5px !important;
+        
+        
+        overflow-y: auto !important;  
+    }}
+
+    /* 4. 改变菜单里每一个选项的悬浮颜色 */
+    ul[data-baseweb="menu"] li {{
+        color: #2e7d32 !important;
+        border-radius: 10px !important;
+        transition: background-color 0.2s ease !important;
+    }}
+    ul[data-baseweb="menu"] li:hover {{
+        background-color: rgba(165, 214, 167, 0.5) !important; 
+    }}
+
+
+    /* 强行改变原生音频播放器的底色 */
+    audio::-webkit-media-controls-panel {{
+        background-color: rgba(24, 244, 77, 0.65) !important; /* 换成半透明的淡绿色底板 */
+        border-radius: 20px !important; /* 加上圆角，让它看起来更柔和 */
+    }}
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
+
+# ==========================================
+# 布局与交互逻辑
+# ==========================================
+
+st.markdown('<div class="top-nav"><span class="nav-item">me</span></div>', unsafe_allow_html=True)
+st.markdown("<br><br><br>", unsafe_allow_html=True)
+
+col_left, col_right = st.columns([1, 1.2])
+
+# ====== 右侧区域：大标题、Start按钮 和 List按钮 ======
+with col_right:
+    st.markdown(f'<div class="main-title">{MAIN_TITLE}</div>', unsafe_allow_html=True)
+    
+    # 放置 Start 按钮 (静默启动)
+    if st.button("Start ➔"):
+        with st.spinner("铃花水仙正在后台悄悄唤醒批处理流水线哦..."):
+            try:
+                subprocess.run(["cmd.exe", "/c", BAT_PATH], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                st.success("启动指令发送成功啦！")
+            except Exception as e:
+                st.error(f"哎呀，启动文件的时候遇到了小麻烦：{e}")
+
+    # 放置 List 按钮 (展开/收起列表)
+    if st.button("List "):
+        # 点击时切换显示状态
+        st.session_state.show_list = not st.session_state.show_list
+
+    # 如果状态是展开，则读取文件夹并显示选择框
+    if st.session_state.show_list:
+        if os.path.exists(AUDIO_DIR):
+            # 扫描文件夹里的 wav 和 mp3 文件
+            audio_files = [f for f in os.listdir(AUDIO_DIR) if f.endswith(('.wav', '.mp3'))]
+            
+            if audio_files:
+                # 按照修改时间或者文件名排个序（这里默认按名字排哦）
+                audio_files.sort(reverse=True)
+                
+                # 让用户选择文件，并在选择改变时更新状态
+                selected_file = st.selectbox("请挑选一个你想听的录音吧：", ["-- 请选择 --"] + audio_files)
+                
+                if selected_file != "-- 请选择 --":
+                    st.session_state.selected_audio = os.path.join(AUDIO_DIR, selected_file)
+                else:
+                    st.session_state.selected_audio = None
+            
+
+
+with col_left:
+
+    if st.session_state.selected_audio and os.path.exists(st.session_state.selected_audio):
+        st.markdown('<div class="audio-glass-box"><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>', unsafe_allow_html=True)
+        st.markdown("<h4 style='color: #2e7d32; margin-bottom: 20px;'> 正在播放选中音频</h4>", unsafe_allow_html=True)
+        
+    
+        st.audio(st.session_state.selected_audio)
+        
+
+        file_name = os.path.basename(st.session_state.selected_audio)
+        st.caption(f"当前文件: {file_name}")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        st.write("")
+==============================================================================================================================================================
+import streamlit as st
+import subprocess
+import time
+import os
+import streamlit.components.v1 as components
+import base64
+from PIL import Image
+import random
+
+def get_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        encoded_string = base64.b64encode(img_file.read()).decode()
+    return encoded_string
+
+img_path = r"E:\Nahida\115467919_p0.jpg"
+img_base64 = get_image_base64(img_path)
+
+BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1080" 
+BLUR_RADIUS = "6px" 
+MAIN_TITLE = "Embark on your audio journey with me" 
+
+# 批处理文件的绝对路径
+BAT_PATH = "E:\\pycode\\auto.bat"
+BAT_PATH1 = "E:\\pycode\\auto_science.bat"
+
+# 存放生成音频的文件夹绝对路径
+AUDIO_DIR = "E:\\pycode\\otp"
+
+
+if 'img_list' not in st.session_state:
+    img_folder = r"E:\selected_pictures"
+    valid_exts = (".jpg", ".jpeg", ".png", ".webp")
+    candidate_imgs = []
+
+    if os.path.exists(img_folder):
+        for filename in os.listdir(img_folder):
+            if filename.lower().endswith(valid_exts):
+                full_path = os.path.join(img_folder, filename)
+                try:
+                    # 借助 Pillow 打开图片看看尺寸
+                    with Image.open(full_path) as img:
+                        w, h = img.size
+                        if w < h:  # 筛选纵向图片
+                            candidate_imgs.append(full_path)
+                except:
+                    continue 
+        
+        random.shuffle(candidate_imgs) 
+        st.session_state.img_list = candidate_imgs
+        st.session_state.img_index = 0 
+
+
+# ==========================================
+
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
+
+if 'show_list' not in st.session_state:
+    st.session_state.show_list = False      # 控制是否展开音频列表
+if 'selected_audio' not in st.session_state:
+    st.session_state.selected_audio = None  # 记录当前选中的音频文件路径
+
+
+custom_css = f"""
+<style>
+    #MainMenu {{visibility: visible;}}
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
+
+    .stApp {{ background-color: transparent; }}
+    .stApp::before {{
+        content: "";
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background-image: url("{BACKGROUND_IMAGE}");
+        background-size: cover; background-position: center; background-repeat: no-repeat;
+        filter: blur({BLUR_RADIUS}); 
+        z-index: -1; 
+    }}
+
+    .top-nav {{
+        max-width: 800px;
+        margin-left: auto;
+        border-radius: 40px;
+        display: flex; justify-content: flex-end; padding: 10px 50px;
+        font-family: 'Helvetica Neue', sans-serif;
+        backdrop-filter: blur(18px)
+        
+    }}
+    .nav-item {{
+        font-size: 25px; color: #2e7d32; font-weight: 600; cursor: pointer; transition: color 0.3s ease;
+    }}
+    .nav-item:hover {{ color: #81c784; }}
+
+    .main-title {{
+        font-size: 4.5rem; font-weight: 700; line-height: 1.5;
+        background: linear-gradient(135deg, #2e7d32 0%, #81c784 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        margin-bottom: 30px; font-family: 'Helvetica Neue', sans-serif;
+        animation: fadeInUp 1s ease-out;
+    }}
+
+    
+    button[kind="primary"]{{
+        width: 160px;
+        background: linear-gradient(135deg, #a5d6a7 0%, #66bb6a 100%);
+        color: white; border: none; border-radius: 40px; padding: 10px 40px;
+        font-size: 18px; font-weight: bold;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: 0 8px 20px rgba(102, 187, 106, 0.3);
+        margin-top: 10px; margin-bottom: 10px;
+    }}
+    button[kind="primary"]:hover{{
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 12px 25px rgba(102, 187, 106, 0.5); color: white;
+    }}
+
+
+    button[kind="secondary"] {{
+    /* 1. 彻底隐身：没有背景，没有边框，没有阴影 */
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important; /* 去掉多余的内边距，让它像纯文本 */
+    
+    /* 2. 继承 me 的字体风采：大号，粗体，翠绿色 */
+    font-size: 25px !important; /* 和 nav-item 保持一致的大小 */
+    color: #2e7d32 !important; /* 同样的翠绿色 */
+    font-weight: 600 !important;
+    font-family: 'Helvetica Neue', sans-serif;
+    
+    /* 3. 丝滑的过渡效果 */
+    transition: color 0.3s ease !important;
+    cursor: pointer;
+}}
+    
+    button[kind="secondary"]:hover {{
+    color: #81c784 !important;
+    background-color: transparent !important; /* 确保悬浮时也没有背景色 */
+    border: none !important;
+}}
+    button[kind="secondary"]:focus:not(:active) {{
+    border-color: transparent !important;
+    color: #2e7d32 !important;
+}}
+
+    .audio-glass-box {{
+        background: rgba(255, 255, 255, 0.01); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 24px; padding: 30px;
+        box-shadow: 0 10px 40px rgba(129, 199, 132, 0.2); animation: fadeIn 1s ease-out;
+        display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 500px;
+        position: relative !important;
+        top: -40px !important;
+    }}
+
+    @keyframes fadeInUp {{ from {{ opacity: 0; transform: translateY(30px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: scale(0.95); }} to {{ opacity: 1; transform: scale(1); }} }}
+
+
+    div[data-baseweb="select"] > div {{
+        background-color: rgba(255, 255, 255, 0.4) !important; 
+        border-radius: 15px !important; 
+        border: 2px solid transparent !important; 
+    }}
+    
+    
+    div[data-baseweb="select"] > div:hover {{
+        border: 2px solid #a5d6a7 !important; 
+    }}
+
+    
+    div[data-baseweb="select"] span {{
+        color: #2e7d32 !important; 
+        font-weight: bold !important;
+    }}
+
+    div[data-baseweb="popover"] ul {{
+        background-color: #81c784 !important; 
+        border-radius: 15px !important;
+        padding: 5px !important;
+        overflow-y: auto !important;  
+    }}
+
+    
+    ul[data-baseweb="menu"] li {{
+        color: #2e7d32 !important;
+        border-radius: 10px !important;
+        transition: background-color 0.2s ease !important;
+    }}
+    ul[data-baseweb="menu"] li:hover {{
+        background-color: rgba(165, 214, 167, 0.5) !important; 
+    }}
+
+    /* 改变原生音频播放器的底色 */
+    audio::-webkit-media-controls-panel {{
+        background-color: rgba(24, 244, 77, 0.65) !important; 
+        border-radius: 20px !important; 
+    }}
+
+   
+    .playing-bars {{ 
+        position: absolute; 
+        top: 50%; left: 50%;
+        transform: translate(-50%, 40%); /* 乖乖待在正中间 */
+        display: flex; align-items: flex-end; justify-content: center; 
+        height: 120px; gap: 12px; 
+        opacity: 0.9; /* 变成半透明的底纹，就不会喧宾夺主啦 */
+        z-index: 0; /* 沉到最底下 */
+    }}
+    .bar {{ 
+        width: 12px; background-color: #2e7d32; border-radius: 6px; 
+        animation: jump 1s infinite ease-in-out; 
+        animation-play-state: paused;
+    }}
+    .bar:nth-child(1) {{ animation-delay: 0.1s; }}
+    .bar:nth-child(2) {{ animation-delay: 0.4s; }}
+    .bar:nth-child(3) {{ animation-delay: 0.2s; }}
+    .bar:nth-child(4) {{ animation-delay: 0.5s; }}
+    .bar:nth-child(5) {{ animation-delay: 0.3s; }}
+    .bar:nth-child(6) {{ animation-delay: 0.1s; }}
+    .bar:nth-child(7) {{ animation-delay: 0.4s; }}
+    .bar:nth-child(8) {{ animation-delay: 0.2s; }}
+    .bar:nth-child(9) {{ animation-delay: 0.5s; }}
+    .bar:nth-child(10) {{ animation-delay: 0.3s; }}
+    .bar:nth-child(11) {{ animation-delay: 0.1s; }}
+    .bar:nth-child(12) {{ animation-delay: 0.4s; }}
+    .bar:nth-child(13) {{ animation-delay: 0.2s; }}
+    .bar:nth-child(14) {{ animation-delay: 0.5s; }}
+    .bar:nth-child(15) {{ animation-delay: 0.3s; }}
+    .bar:nth-child(16) {{ animation-delay: 0.1s; }}
+    .bar:nth-child(17) {{ animation-delay: 0.4s; }}
+    .bar:nth-child(18) {{ animation-delay: 0.2s; }}
+    @keyframes jump {{ 
+        0%, 100% {{ height: 20px; }} 
+        50% {{ height: 120px; }} 
+    }}
+
+    
+    div.stAudio {{
+        position: relative;
+        margin-top: -100px !important; 
+        z-index: 10; 
+        padding: 0 20px;
+    }}
+</style>
+"""
+st.markdown(custom_css, unsafe_allow_html=True)
+
+# ==========================================
+# 布局与交互逻辑
+# ==========================================
+
+st.markdown('<div class="top-nav"><span class="nav-item">me</span></div>', unsafe_allow_html=True)
+st.markdown("<br><br><br>", unsafe_allow_html=True)
+
+
+col_left, col_right = st.columns([1, 1.2])
+
+# ====== 右侧区域：大标题、Start按钮 和 List按钮 ======
+with col_right:
+    st.markdown(f'<div class="main-title">{MAIN_TITLE}</div>', unsafe_allow_html=True)
+    
+    
+    
+    col_left1, col_right1, col_left2, col_right2 = st.columns([1, 1, 1, 1])
+
+    
+    with col_left1:
+        
+        
+        
+        if st.button("global", type="primary", key="btn_global"):
+            with st.spinner("铃花水仙正在后台悄悄唤醒批处理流水线哦..."):
+                try:
+                    subprocess.run(["cmd.exe", "/c", BAT_PATH], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                    st.success("启动指令发送成功啦！")
+                except Exception as e:
+                    st.error(f"故障啦：{e}")
+
+        
+        if st.button("List ", type="primary", key="btn_list"):
+            st.session_state.show_list = not st.session_state.show_list
+
+        if st.session_state.show_list:
+            if os.path.exists(AUDIO_DIR):
+                audio_files = [f for f in os.listdir(AUDIO_DIR) if f.endswith(('.wav', '.mp3'))]
+                if audio_files:
+                    audio_files.sort(reverse=True)
+                    selected_file = st.selectbox("请挑选录音：", ["-- 请选择 --"] + audio_files, key="select_audio")
+                    if selected_file != "-- 请选择 --":
+                        st.session_state.selected_audio = os.path.join(AUDIO_DIR, selected_file)
+                    else:
+                        st.session_state.selected_audio = None
+        
+        
+        
+
+    
+    with col_right1:
+        
+        
+        
+        
+        
+        if st.button("science", type="primary", key="btn_science"):
+            with st.spinner("正在启动 Science 流水线..."):
+                try:
+                    subprocess.run(["cmd.exe", "/c", BAT_PATH1], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                    st.success("Science 启动成功！")
+                except Exception as e:
+                    st.error(f"遇到麻烦了：{e}")
+        
+        
+        
+            
+
+# ====== 左侧区域：音频播放器和律动条 ======
+
+
+
+with col_left:
+
+    
+    
+    if st.session_state.show_list and st.session_state.selected_audio and os.path.exists(st.session_state.selected_audio):
+        file_name = os.path.basename(st.session_state.selected_audio)
+        
+        
+        st.markdown(f'''
+<div style="position: relative; width: 100%; min-height: 400px;">
+            <img src="data:image/jpeg;base64,{img_base64}" 
+                 style="position: absolute; width: 100%; z-index: 0; border-radius: 20px; opacity: 0.8;top: -250px;left: -20px">                   
+                        <div class="audio-glass-box">
+                            <h4 style="color: #2e7d32; margin-bottom: -2px; position: relative; z-index: 1;top: -10px;font-size: 35px"> 正在播放选中音频</h4>
+                            <div style="color: #4caf50; font-size: 14px; margin-bottom: 90px; position: relative; z-index: 1;left: -10px;">当前文件: {file_name}</div>
+                            <div class="playing-bars">
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                                <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                            </div>
+                        </div>
+</div>
+''', unsafe_allow_html=True)
+    
+        
+        # 紧接着就是原生的播放器
+        st.audio(st.session_state.selected_audio)
+        components.html("""
+        <script>
+        // 设定一个小闹钟，每半秒钟找找看播放器和波形条有没有加载出来
+        const checkExist = setInterval(function() {
+            const parentDoc = window.parent.document;
+            const audioTag = parentDoc.querySelector('audio');
+            const bars = parentDoc.querySelectorAll('.bar');
+            
+            if (audioTag && bars.length > 0) {
+                clearInterval(checkExist); // 找到之后就不找啦
+                
+                // 定义一个动作：根据播放状态更新小条的跳动
+                const updateBars = () => {
+                    bars.forEach(bar => {
+                        if (audioTag.paused) {
+                            bar.style.animationPlayState = 'paused';
+                        } else {
+                            bar.style.animationPlayState = 'running';
+                        }
+                    });
+                };
+                
+                // 监听播放器的各种状态变化
+                audioTag.addEventListener('play', updateBars);
+                audioTag.addEventListener('pause', updateBars);
+                audioTag.addEventListener('ended', updateBars);
+                
+                // 刚加载好的时候也先检查一下状态哦
+                updateBars();
+            }
+        }, 500); 
+        </script>
+        """, height=0, width=0)
+    else:
+        st.markdown(f'''
+<div style="position: relative; width: 100%; min-height: 400px;">
+            <img src="data:image/jpeg;base64,{img_base64}" 
+                 style="position: absolute; width: 100%; z-index: 0; border-radius: 20px; opacity: 0.8;top: -250px;left: -20px">                   
+                        
+</div>
+''', unsafe_allow_html=True)

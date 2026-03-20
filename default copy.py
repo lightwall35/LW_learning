@@ -77,7 +77,7 @@ if response.status_code != 200:
 virtual_file = io.BytesIO(response.content)
 silence = AudioSegment.silent(duration=2000)
 audio = AudioSegment.from_file(virtual_file, format="wav")
-audio_bgm =  AudioSegment.from_file(r"E:\music\星茶会.m4a", format="m4a")
+
 
 bgm_folder = r"E:\music"
 candidate_bgms = []
@@ -86,20 +86,21 @@ if os.path.exists(bgm_folder):
     for filename in os.listdir(bgm_folder):
         if filename.endswith(valid_exts):
             candidate_bgms.append(os.path.join(bgm_folder, filename))
-target_length = len(audio) + 2000
+target_length = len(audio) + 4000
 
 special_rules = {
-    "罗辑": 6.2727,   
-    "Eyes of Irumyuui": 6.2727, 
-    "Adventure Through the Light": 6.2727 ,
+    "罗辑": 4.2727,   
+    "Eyes of Irumyuui": 4.2727, 
+    "Adventure Through the Light": 4.2727 ,
     "Nature Sequence. 6th Layer": 6.2727 ,
-    "old stories": 6.2727 ,
-    "Reg & his Interference Unit": 6.2727,
+    "old stories": 4.2727 ,
+    "Reg & his Interference Unit": 4.2727,
     "Sufjan Stevens - Death with Dignity": 6.2727,
     "Tomorrowland": 6.2727,
-    "undertale": 6.2727,
-    "where dream rest": 6.2727, 
-    "深渊的琴槌": 6.2727,          
+    "undertale": 4.2727,
+    "where dream rest": 4.2727, 
+    "深渊的琴槌": 4.2727,  
+    "星茶会": 4.2727        
     
 }
 scored_bgms = []
@@ -122,7 +123,9 @@ scored_bgms.sort(key=lambda x: x[0], reverse=True)
 
 candidate_bgms = [item[1] for item in scored_bgms]
     
-current_bgm_index = 0
+audio_bgm =  AudioSegment.from_file(candidate_bgms[0])
+
+current_bgm_index = 1
 while len(audio_bgm) < target_length:
     if candidate_bgms:
         random_path = candidate_bgms[current_bgm_index]
@@ -132,8 +135,8 @@ while len(audio_bgm) < target_length:
     else:
         audio_bgm = audio_bgm + silence + audio_bgm
 
-audio_bgm = audio_bgm - 7
-audio_bgm = audio_bgm[:target_length].fade_out(2000)
+audio_bgm = audio_bgm - 9
+audio_bgm = audio_bgm[:target_length].fade_out(4000)
 overlayed_audio = audio_bgm.overlay(audio, position=0)
 save_folder = r"E:\pycode\otp"
 time_str = datetime.now().strftime("%Y%m%d%H%M%S")

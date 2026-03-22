@@ -6,6 +6,8 @@ import streamlit.components.v1 as components
 import base64
 from PIL import Image
 import random
+import requests
+import json
 
 
 def get_image_base64(image_path):
@@ -23,7 +25,7 @@ MAIN_TITLE = "Embark on your audio journey with me"
 
 BAT_PATH = "E:\\pycode\\auto.bat"
 BAT_PATH1 = "E:\\pycode\\auto_science.bat"
-
+BAT_PATH2 = "E:\\pycode\\webui_request.bat"
 
 AUDIO_DIR = "E:\\pycode\\otp"
 
@@ -524,16 +526,8 @@ if st.session_state.page_now == 'main':
 if st.session_state.page_now == 'me':
     
     col_A, col_B = st.columns([1.2, 1])
-    with col_A:
-        
-        text = user_text_area = st.text_area(
-        label="这是一个圆角矩形：",
-        placeholder="",
-        height=650,  
-        key="my_glass_textarea"
-        
+    
 
-        )        
     with col_B:
         col_1,col_2= st.columns([3.5, 1])
         with col_2:
@@ -544,21 +538,23 @@ if st.session_state.page_now == 'me':
         text_lang = st.selectbox("文本语言", ["zh", "en", "ja", "yue"], key="lang_select")
         seed = st.slider("seed", -1, 99999, 99999, key="seed_slider")
         raw = 99998-seed
+        
         col_k,col_l = st.columns([1,1])
-        text_split_method = st.segmented_control("文本切分方式", options=["cut5", "cut10", "cut20", "none"],default="cut5",key="split_method_control")
+        
         with col_k:
-            
             top_k = st.slider("top_k", 0, 20, 5, key="top_k_slider")
             top_p = st.slider("top_p", 0.0, 1.0, 1.0, key="top_p_slider")
             temperature = st.slider("temperature", 0.1, 2.0, 1.0, key="temp_slider")
             batch_size = st.slider("batch_size", 1, 8, 1, key="batch_size_slider")
-            batch_threshold = st.slider("batch_threshold", 0.0, 1.0, 0.75, key="batch_threshold_slider")  
+            batch_threshold = st.slider("batch_threshold", 0.0, 1.0, 0.75, key="batch_threshold_slider") 
+            text_split_method = st.segmented_control("文本切分方式", options=["cut5", "cut10", "cut20", "none"],default="cut5",key="split_method_control")
         with col_l:      
             speed_factor = st.slider("speed_factor", 0.5, 2.0   , 1.0, key="speed_factor_slider")
             fragment_interval = st.slider("fragment_interval", 0.0, 1.0, 0.3, key="fragment_interval_slider")
             repetition_penalty = st.slider("repetition_penalty", 1.0, 2.0, 1.35, key="repetition_penalty_slider")
             sample_steps = st.slider("sample_steps", 1, 64, 32, key="sample_steps_slider")
             min_chunk_length = st.slider("min_chunk_length", 1, 64, 16, key="min_chunk_length_slider")
+            background_music = st.segmented_control("背景音乐", options=["off", "on"], default="on", key="bgm_control")
         col_q,col_w,col_e,col_r = st.columns([1,1,1,1])
         with col_q:
             split_bucket = st.toggle("split_bucket", key="split_bucket_toggle")
@@ -568,3 +564,59 @@ if st.session_state.page_now == 'me':
             super_sampling = st.toggle("super_sampling", key="super_sampling_toggle")
         with col_r:
             streaming_mode = st.toggle("streaming_mode", key="streaming_mode_toggle")
+        overlap_length = st.slider("overlap_length", 0, 10, 2, key="overlap_length_slider")
+    
+    with col_A:
+        
+        text = user_text_area = st.text_area(
+        label="这是一个圆角矩形：",
+        placeholder="",
+        height=650,  
+        key="my_glass_textarea"
+        )
+        col_z, col_x, col_c = st.columns([1, 1, 1])
+        with col_z:
+            if st.button("合成", type="primary", use_container_width=True):
+                if not text:
+                    st.warning("木有文字(>_<)")
+                else:
+                    with st.spinner("正在发送合成请求..."):
+                        try:
+                            
+                            api_url = "http://127.0.0.1:9880/" 
+                            
+                            payload = {
+                                "text": text,                   
+                                "text_lang": text_lang,                          
+                                "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\nahida等11个文件\nahida\v1\推理音频\新鲜感，就是来源于生活中的小小仪式哦。.wav",  
+                                "prompt_text": "新鲜感，就是来源于生活中的小小仪式哦。",            
+                                "prompt_lang": "zh",            
+                                "top_k": top_k,                   
+                                "top_p": top_p,                   
+                                "temperature": temperature,             
+                                "text_split_method": text_split_method,  
+                                "batch_size": batch_size,              
+                                "batch_threshold": batch_threshold,      
+                                "split_bucket": split_bucket,      
+                                "speed_factor": speed_factor,          
+                                "fragment_interval": fragment_interval,     
+                                "seed": raw,                   
+                                "parallel_infer": parallel_infer,         
+                                "repetition_penalty": repetition_penalty,   
+                                "sample_steps": sample_steps,           
+                                "super_sampling": super_sampling,      
+                                "streaming_mode": streaming_mode,      
+                                "overlap_length": overlap_length,          
+                                "min_chunk_length": min_chunk_length,
+                            }
+                            
+                            if_music = background_music
+                            data_to_send = {
+                                    "sovits_payload": payload,
+                                    "if_music": if_music
+                                }
+                            with open("transfer_data.json", "w", encoding="utf-8") as f:
+                                json.dump(data_to_send, f, ensure_ascii=False, indent=4)
+                            subprocess.run(["cmd.exe", "/c", BAT_PATH2], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                        except Exception as e:
+                            st.error(f"连接 API 的时候遇到了一点小麻烦：{e}")

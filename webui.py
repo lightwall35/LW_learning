@@ -8,6 +8,7 @@ from PIL import Image
 import random
 import requests
 import json
+import mimetypes
 
 
 def get_image_base64(image_path):
@@ -34,6 +35,7 @@ if 'img_list' not in st.session_state:
     img_folder = r"E:\selected_pictures"
     valid_exts = (".jpg", ".jpeg", ".png", ".webp")
     candidate_imgs = []
+    candidate_imgs_for_background = []
 
     if os.path.exists(img_folder):
         for filename in os.listdir(img_folder):
@@ -45,12 +47,45 @@ if 'img_list' not in st.session_state:
                         w, h = img.size
                         if w < h:  
                             candidate_imgs.append(full_path)
+                        else:
+                            candidate_imgs_for_background.append(full_path)
                 except:
                     continue 
         
         random.shuffle(candidate_imgs) 
         st.session_state.img_list = candidate_imgs
         st.session_state.img_index = 0 
+
+        random.shuffle(candidate_imgs_for_background) 
+        special_url = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?q=80&w=1080"
+        candidate_imgs_for_background.insert(0, special_url)
+        st.session_state.img_list_for_background = candidate_imgs_for_background
+        st.session_state.img_index_for_background = 0 
+
+if st.session_state.get("img_list_for_background"):
+   
+    current_bg_index = st.session_state.img_index_for_background
+    current_bg_path = st.session_state.img_list_for_background[current_bg_index]
+
+    if current_bg_path.startswith("http"):
+        
+        BACKGROUND_IMAGE = current_bg_path
+    
+    else:
+        bg_base64 = get_image_base64(current_bg_path)
+        
+    
+        mime_type, _ = mimetypes.guess_type(current_bg_path)
+        if not mime_type:
+            mime_type = "image/jpeg"
+            
+        BACKGROUND_IMAGE = f"data:{mime_type};base64,{bg_base64}"
+        
+        
+        BLUR_RADIUS = "6px" 
+    
+    
+    
 
 
 # ==========================================
@@ -78,6 +113,7 @@ custom_css = f"""
         background-size: cover; background-position: center; background-repeat: no-repeat;
         filter: blur({BLUR_RADIUS}); 
         z-index: -1; 
+        transition: background-image 0.5s ease-in-ou
     }}
 
     .top-nav {{
@@ -379,10 +415,10 @@ if st.session_state.page_now == 'main':
             
             
             if st.button("global", type="primary", key="btn_global"):
-                with st.spinner("铃花水仙正在后台悄悄唤醒批处理流水线哦..."):
+                with st.spinner("悄悄唤醒批处理流水线"):
                     try:
                         subprocess.run(["cmd.exe", "/c", BAT_PATH], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
-                        st.success("启动指令发送成功啦！")
+                        st.success("启动指令发送成功")
                     except Exception as e:
                         st.error(f"故障啦：{e}")
 
@@ -412,10 +448,10 @@ if st.session_state.page_now == 'main':
             
             
             if st.button("science", type="primary", key="btn_science"):
-                with st.spinner("正在启动 Science 流水线..."):
+                with st.spinner("正在启动 Science 批处理文件..."):
                     try:
                         subprocess.run(["cmd.exe", "/c", BAT_PATH1], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
-                        st.success("Science 启动成功！")
+                        st.success("Science 启动成功")
                     except Exception as e:
                         st.error(f"遇到麻烦了：{e}")
             
@@ -564,6 +600,7 @@ if st.session_state.page_now == 'me':
             super_sampling = st.toggle("super_sampling", key="super_sampling_toggle")
         with col_r:
             streaming_mode = st.toggle("streaming_mode", key="streaming_mode_toggle")
+            #流式输出还没做，补药打开
         overlap_length = st.slider("overlap_length", 0, 10, 2, key="overlap_length_slider")
     
     with col_A:
@@ -620,3 +657,9 @@ if st.session_state.page_now == 'me':
                             subprocess.run(["cmd.exe", "/c", BAT_PATH2], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
                         except Exception as e:
                             st.error(f"连接 API 的时候遇到了一点小麻烦：{e}")
+        
+        with col_x:
+            if st.button("背景图片", key="btn_change_picture",type="primary"):
+                if st.session_state.img_list_for_background:
+            
+                 st.session_state.img_index_for_background = (st.session_state.img_index_for_background + 1) % len(st.session_state.img_list_for_background)

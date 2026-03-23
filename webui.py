@@ -16,6 +16,13 @@ def get_image_base64(image_path):
         encoded_string = base64.b64encode(img_file.read()).decode()
     return encoded_string
 
+
+def change_bg_index():
+    if st.session_state.get("img_list_for_background"):
+        
+        current_len = len(st.session_state.img_list_for_background)
+        st.session_state.img_index_for_background = (st.session_state.img_index_for_background + 1) % current_len
+
 img_path = r"E:\Nahida\115467919_p0.jpg"
 img_base64 = get_image_base64(img_path)
 
@@ -659,7 +666,5 @@ if st.session_state.page_now == 'me':
                             st.error(f"连接 API 的时候遇到了一点小麻烦：{e}")
         
         with col_x:
-            if st.button("背景图片", key="btn_change_picture",type="primary"):
-                if st.session_state.img_list_for_background:
-            
-                 st.session_state.img_index_for_background = (st.session_state.img_index_for_background + 1) % len(st.session_state.img_list_for_background)
+            st.button("背景图片", key="btn_change_picture", type="primary", on_click=change_bg_index)
+               

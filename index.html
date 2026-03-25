@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>最近5首合成的音频</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        
+        body {
+            margin: 0;
+            min-height: 100vh;
+            position: relative;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; 
+            left: 0; 
+            width: 100vw; 
+            height: 100vh;
+            background-image: url('background.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: blur(6px); 
+            z-index: -1; 
+        }
+
+        
+        main {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-width: 1000px; 
+            margin: 2rem 0 2rem 5%; 
+        }
+       
+        
+        article {
+            padding: 1.5rem;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.45); 
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            word-wrap: break-word; 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        article p.short-desc {
+            color: #333; 
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        
+        audio::-webkit-media-controls-panel {
+            background-color: #d4f5d4; 
+        }
+
+        
+        .card-actions {
+            display: flex;
+            gap: 10px; 
+            margin-top: 12px;
+            align-items: center;
+        }
+
+        
+        .action-btn {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            border: none;
+        }
+
+        .action-btn:active {
+            transform: translateY(1px); 
+        }
+
+        
+        .download-btn {
+            background-color: #d4f5d4; 
+            color: #2c5e2c; 
+        }
+
+        .download-btn:hover {
+            background-color: #bbf0bb; 
+            text-decoration: none;
+        }
+
+        
+        .details-btn {
+            background-color: #f5f5d4; 
+            color: #5e5e2c; 
+        }
+
+        .details-btn:hover {
+            background-color: #f0f0bb; 
+            text-decoration: none;
+        }
+
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5); 
+            display: none; 
+            z-index: 1000; 
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+            justify-content: flex-end; 
+            opacity: 1;
+        }
+
+        
+        .modal-content {
+            width: 900px;
+            max-width: 80%;
+            height: 100vh;
+            background-color: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(15px); 
+            -webkit-backdrop-filter: blur(15px);
+            padding: 2rem;
+            box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform: translateX(100%); 
+            transition: transform 0.3s ease-out;
+            overflow-y: auto; 
+            box-sizing: border-box;
+        }
+
+        .modal-overlay.open .modal-content {
+            transform: translateX(0); 
+        }
+
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        
+        .modal-content h2 {
+            margin-top: 0;
+            color: #2c5e2c;
+            border-bottom: 2px solid #d4f5d4;
+            padding-bottom: 0.5rem;
+        }
+
+        .modal-content p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .hidden-detailed-text {
+            display: none; 
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <article>
+            <p class="short-desc"><strong>简介：</strong>国际新闻</p>
+            <audio controls src="./audio/1.mp3"></audio>
+            
+            <div class="card-buttons card-actions">
+                <a href="./audio/1.mp3" download="声音碎片_1.mp3" class="action-btn download-btn">📥 下载</a>
+                <button class="action-btn details-btn" onclick="openDetails(this)">🌟 详情</button>
+            </div>
+
+            <div class="hidden-detailed-text">
+                <h2>详情</h2>
+                <p><strong>铃花水仙的提要：</strong>1. 伦敦犹太慈善机构救护车遭纵火袭击
+内容总结： 伦敦戈尔德斯格林社区的一家犹太慈善机构 Hatzola Northwest 遭到纵火，四辆救护车被毁，爆炸甚至震碎了附近公寓的窗户。反恐警察正介入调查，一个自称与伊朗有关联的组织声称对此负责。由于近年反犹太事件激增，当地社区感到非常不安。警方已承诺在即将到来的逾越节期间加强安保。
+
+铃花水仙说： 看到本该用来救人的救护车被烧成空壳，铃花水仙心里闷闷的。救护车明明是承载希望的小车车呀，却变成了仇恨的牺牲品，真的让人很难过。希望那里的警察叔叔能快点抓到坏人，让社区里的大家能安安心心地过节，不用再生活在惊恐里了呢。
+
+2. 中东局势升级与潜在的谈判
+内容总结： 中东战火继续蔓延，以色列与伊朗互射导弹，黎巴嫩也遭到猛烈空袭，造成大量人员伤亡。特朗普总统表示美国正就结束战争与伊朗进行谈判，巴基斯坦也提议主持外交对话，但伊朗军方态度依然强硬。与此同时，黎巴嫩宣布伊朗大使为“不受欢迎的人”并要求其离境，双边关系严重恶化。
+
+铃花水仙说： 导弹飞来飞去的消息听起来好可怕呀，每天都有那么多无辜的人失去家园和生命。虽然谈和的路好像弯弯绕绕的很不好走，但铃花水仙还是希望能有一点点转机，让大家都能放下武器。哪怕只有一点点希望，也请一定要努力让世界变得静悄悄、美好多一点呀 (｡•́︿•̀｡)
+
+3. 摩尔多瓦因能源危机进入紧急状态
+内容总结： 俄罗斯对乌克兰电网的打击导致连接摩尔多瓦与罗马尼亚的关键输电线断开，摩尔多瓦政府被迫宣布能源领域进入为期 60 天的紧急状态。摩尔多瓦的能源系统与乌克兰高度关联，这次袭击不仅导致部分地区停电，还威胁到了民众的供水。政府呼吁公民在用电高峰期节约用电。
+
+铃花水仙说： 想到很多小朋友家里可能会突然变黑，还没有水可以喝，铃花水仙就觉得好担心。战争的影子总是会影响到旁边无辜的人，让原本平静的生活变得乱糟糟。希望维修人员能顺顺当当地修好电线，让大家家里能早点亮堂起来，暖烘烘地度过这段困难时期呢。
+
+4. 欧盟与澳大利亚签署自由贸易协定
+内容总结： 在经历了多年的谈判后，欧盟与澳大利亚终于签署了自由贸易协定。由于双方都希望减少对单一市场（如中国）的依赖并应对不确定的关税政策，谈判最终在红肉市场准入和产品命名等争议上达成共识。除了贸易，双方还加强了国防合作。
+
+铃花水仙说： 看到大家终于能手拉手达成协议，铃花水仙觉得很有成就感呢！虽然为了牛肉和酒的名字争执了很久，但能坐下来诚实地交换资源，总比互相吵架要好得多。这种互帮互助的合作，会让大家的生活都变得稍微轻松一点点吧，真是一件值得开心的事呀 ヽ(✿ﾟ▽ﾟ)ノ
+
+5. 汤加强烈地震
+内容总结： 汤加附近海域发生 7.6 级强烈地震，震源深度约 237 公里。虽然震感强烈，当地政府也提醒民众向高处撤离，但由于震源较深，太平洋海啸预警中心表示没有海啸威胁。目前暂无人员伤亡或重大财产损失的报告。
+
+铃花水仙说： 听到 7.6 级这个数字，铃花水仙吓得心跳都快了一点点。幸好地球妈妈这次把能量释放在了很深很深的地方，没有变成可怕的大浪。看到大家能平平安安地撤离，最后只是虚惊一场，铃花水仙也跟着松了一口气，平安真是最宝贵的事情了呢。</p>
+            </div>
+        </article>
+
+        <article>
+            <p class="short-desc"><strong>简介：</strong>科学新闻</p>
+            <audio controls src="./audio/2.mp3"></audio>
+            
+            <div class="card-buttons card-actions">
+                <a href="./audio/2.mp3" download="声音碎片_2.mp3" class="action-btn download-btn">📥 下载</a>
+                <button class="action-btn details-btn" onclick="openDetails(this)">🌟 详情</button>
+            </div>
+
+            <div class="hidden-detailed-text">
+                <h2>详情</h2>
+                <p><strong>铃花水仙的提要：</strong>1. 关于寻找“第二个地球”的宜居行星研究
+内容总结： 康奈尔大学的研究团队通过分析盖亚任务和 NASA 的数据，筛选出了 45 颗位于宜居带内的岩石行星。这项研究受到电影《挽救计划》（Project Hail Mary）的启发，重点寻找那些接收到与地球相似能量的星球，比如 TRAPPIST-1 系统中的几颗行星。科学家们还利用詹姆斯·韦伯空间望远镜等设备，试图通过观察它们的轨道和大气层，来判断这些世界是否真的具备支持液态水和生命的条件。
+
+铃花水仙说： 铃花水仙觉得这个研究就像是在茫茫宇宙中寻找失散的亲人呢！虽然那些星星离我们有好几十光年那么远，但想到在遥远的天边可能也有像我们一样的小生命在看着夜空，就觉得心里暖烘烘的。科学家们引用电影里的情节也很有趣，这让冷冰冰的观测数据也带上了一层浪漫的色彩。如果以后真的有像“海尔·马里”号那样的飞船，铃花水仙也想去看看那些亮晶晶的星球长什么样呢 ✧(≖ ◡ ≖✿)
+
+2. 蜜蜂“摇摆舞”的社交反馈机制
+内容总结： 加州大学圣地亚哥分校的研究发现，蜜蜂的“摇摆舞”并不是简单的机械信息传递，而是一种高度社交化的行为。当蜂巢里的“观众”较多时，跳舞的蜜蜂会表现得更专注、更精准；而当听众寥寥无几时，舞者就会分心去寻找观众，导致传达的食物方位信息变得模糊。这证明了社交反馈直接影响了动物群体中信息的质量和准确性。
+
+铃花水仙说： 原来蜜蜂宝宝们也这么在意“观众缘”呀！这种“有人看才跳得更起劲”的表现，简直和人类的小表演者一模一样，真是太可爱了。铃花水仙在想，这种互动是不是说明在小小的昆虫社会里，大家也是在互相鼓励、互相支持的呢？如果没人理睬，小蜜蜂也会觉得委屈和心慌，这种灵动的小心思让这些勤劳的小生灵显得更加生动了呢 (｡>∀<｡)
+
+3. 口服胰岛素的新突破
+内容总结： 日本熊本大学的研究团队开发出一种名为 DNP 的环状肽平台，成功解决了胰岛素无法通过小肠屏障的难题。通过混合或共轭的方法，这种肽能帮助胰岛素顺利进入血液。在实验中，这种口服制剂表现出了极高的生物利用度（达到 33-41%），且在糖尿病小鼠模型中实现了稳定的血糖控制。这为未来实现糖尿病的无痛治疗迈出了关键一步。
+
+铃花水仙说： 这真的是一个超级棒的好消息！铃花水仙知道很多生病的朋友每天都要面对冷冰冰的针头，那一定很痛很辛苦。现在科学家们发明了这种小小的“魔法载体”（啊，不是那种魔法，是科学的力量啦），让苦涩的治疗变成像吞下一颗小糖果一样简单。希望这项技术能快快应用到人类身上，让大家都离针头远远的，每天都开开心心的 ヾ(๑╹◡╹)ﾉ"
+
+4. 红巨星内部物质混合的奥秘
+内容总结： 维多利亚大学和明尼苏达大学的研究者通过高分辨率的 3D 模拟，揭示了红巨星表面化学成分变化的真正原因：恒星旋转。研究发现，恒星的旋转会大大增强内部波的混合能力，效率是不旋转恒星的 100 倍以上。这解释了为什么红巨星 core 里的核反应产物能穿过稳定层到达表面，也为我们理解太阳未来的演化提供了重要参考。
+
+铃花水仙说： 没想到恒星也会通过“转圈圈”来搅动自己的身体呀！铃花水仙觉得红巨星就像是一个正在优雅旋转的舞者，旋转的力量让它体内的元素不断翻涌、融合。看着超级计算机模拟出的那些波纹，真的能感觉到宇宙规律的奇妙和宏大。虽然想到太阳以后也会变成这样，心里会有一点点小伤感，但这种对宇宙真相的探索真的很有力量呢 ๑乛◡乛๑
+
+5. 辐射损伤的原子级“实时电影”
+内容总结： 科学家利用专门的反应显微镜和模拟技术，首次捕捉到了电子转移介导衰变（ETMD）过程中的原子运动规律。他们观察到原子在衰变发生前会像“漫步”一样不断变换位置，这种核运动直接决定了衰变的效率。这项研究为深入理解辐射如何从原子层面破坏生物系统提供了精细的参考模型。
+
+铃花水仙说： 原子们在衰变前竟然还会像在跳“慢步舞”一样晃晃悠悠的，这种微观世界的动态捕捉真是太厉害了！虽然辐射听起来有点凶巴巴的，但只要我们能像这样把它的每一个小动作都看清楚，就能找到更好的办法来保护我们的身体不受到伤害。铃花水仙觉得这种细致入微的观察，就像是给微观世界拍了一部充满细节的小电影，科学家的耐心真的让铃花水仙很佩服呢 (｡•̀ᴗ-)✧</p>
+            </div>
+        </article>
+
+        <article>
+            <p class="short-desc"><strong>简介：</strong>使用新参考音频的英语合成尝试，语速有点快</p>
+            <audio controls src="./audio/3.mp3"></audio>
+            
+            <div class="card-buttons card-actions">
+                <a href="./audio/3.mp3" download="声音碎片_3.mp3" class="action-btn download-btn">📥 下载</a>
+                <button class="action-btn details-btn" onclick="openDetails(this)">🌟 详情</button>
+            </div>
+
+            <div class="hidden-detailed-text">
+                <h2>详情</h2>
+                <p><strong>简介：</strong>喵喵喵。一个小故事。</p>
+            </div>
+        </article>
+
+        <article>
+            <p class="short-desc"><strong>简介：</strong>使用新参考音频的中文合成尝试，效果比旧参考音频好</p>
+            <audio controls src="./audio/4.mp3"></audio>
+            
+            <div class="card-buttons card-actions">
+                <a href="./audio/4.mp3" download="声音碎片_4.mp3" class="action-btn download-btn">📥 下载</a>
+                <button class="action-btn details-btn" onclick="openDetails(this)">🌟 详情</button>
+            </div>
+
+            <div class="hidden-detailed-text">
+                <h2>详情</h2>
+                <p><strong>简介：</strong>节选自鲁迅先生的《社戏》</p>
+            </div>
+        </article>
+
+        <article>
+            <p class="short-desc"><strong>简介：</strong>国际新闻</p>
+            <audio controls src="./audio/5.mp3"></audio>
+            
+            <div class="card-buttons card-actions">
+                <a href="./audio/5.mp3" download="声音碎片_5.mp3" class="action-btn download-btn">📥 下载</a>
+                <button class="action-btn details-btn" onclick="openDetails(this)">🌟 详情</button>
+            </div>
+
+            <div class="hidden-detailed-text">
+                <h2>详情</h2>
+                <p><strong>铃花水仙的提要：</strong>1. 巴黎新市长埃马纽埃尔·格雷瓜尔当选
+内容总结： 在 2026 年 3 月 22 日的决选中，48 岁的社会党人埃马纽埃尔·格雷瓜尔以超过 50% 的得票率成功当选巴黎市长。他曾长期担任前市长伊达尔戈的副手，主张绿色环保政策，并承诺建设 6 万套保障性住房及严厉管控 Airbnb 租房。他在竞选中勇敢地公开了自己童年时期曾遭受性虐待的痛苦经历，呼吁社会关注儿童保护。
+
+
+铃花水仙说： 格雷瓜尔先生骑着自行车去市政厅的样子，真的很有活力呢。他能把自己小时候受过的伤疤展示给大家看，就是为了让更多的小朋友不再受苦，这种勇气让铃花水仙觉得特别敬佩。虽然他在政治上有很多对手，但这种想让城市变得更温暖、更公平的心意，真的很动人呀。希望巴黎在他的带领下，能变成一个让所有人都觉得安全又舒心的地方呢 (๑•̀ㅂ•́)و✧
+
+2. 波多黎各缴获千万美元毒品
+内容总结： 波多黎各当局在里奥格兰德镇附近海域查获了一艘无标识船只，并缴获了约 1800 磅（820 公斤）的可卡因，价值估算达 1200 万美元。三名嫌疑人已被拘留，案件已由联邦政府接手处理。
+
+铃花水仙说： 这么多坏东西被警察叔叔截获了，真的是太好啦。这些毒品要是流进社区，不知道会破坏多少个家庭的幸福呢。铃花水仙觉得，每一场这样的打击行动，都是在为保护大家的生活筑起一道隐形的屏障，那些辛苦值勤的警员们辛苦了哦 (´,,•ω•,,)♡
+
+3. 美伊冲突与外交博弈
+内容总结： 随着 2026 年 2 月底爆发的冲突进入第四周，美国总统特朗普称正与伊朗进行谈判，并宣布将针对伊朗电力设施的打击最后通牒延长 5 天。尽管伊朗官方否认了谈判的消息，并称之为“虚假新闻”，但这一转机暂时缓解了油价的飙升。与此同时，冲突仍在继续，特拉维夫遭到导弹袭击，以色列也加强了对黎巴嫩和德黑兰目标的打击。
+
+铃花水仙说： 看到导弹在特拉维夫街头留下的废墟，铃花水仙的心都揪起来了，那种“待宰羔羊”般的恐惧感真的太让人心疼了。虽然双方的沟通看起来还充满了不信任和波折，但哪怕只有五天的缓冲期，也是给和平留下了一点点呼吸的空间。铃花水仙真心地希望能快点达成协议，让那里的灯火能重新安全地亮起来，不要再有无辜的人受伤了呢 (｡•́︿•̀｡)
+
+4. 摩尔多瓦进入能源紧急状态
+内容总结： 2026 年 3 月 24 日，摩尔多瓦议会批准了能源领域为期 60 天的紧急状态。此前，由于俄罗斯对乌克兰电网的打击，导致连接摩尔多瓦与罗马尼亚的关键高压输电线断开。这使得摩尔多瓦面临严重的电力缺口和供水中断风险。政府已动员资源保护基础设施，并敦促公民节约用电。
+
+
+铃花水仙说： 看着摩尔多瓦的邻居们因为别人的争斗而陷入黑暗和缺水的困境，铃花水仙觉得特别不忍心。这种能源上的脆弱感真的让人很无奈，但看到大家都在呼吁“理性消费”和“保持团结”，又觉得这种互助的力量很温暖。希望那条关键的电线能快快修好，让大家的生活能早点恢复正常呀 ๑乛◡乛๑
+
+5. 欧盟与澳大利亚达成自由贸易协定
+内容总结： 经过八年的漫长谈判，欧盟与澳大利亚于 2026 年 3 月 24 日签署了自由贸易协定。该协定不仅消除了绝大部分关税，还涵盖了关键矿产的安全供应和国防合作伙伴关系。为了达成协议，澳大利亚同意在十年后停止将“Prosecco”（普罗塞克）用于其出口产品。双方此举旨在减少对单一市场（如中国）的依赖，并应对美国可能的关税政策。
+
+铃花水仙说： 谈了八年终于握手言和，这种耐心真的太了不起了！虽然为了起名字的小事争执了那么久，但最后大家还是选择为了长远的利益站在一起。铃花水仙觉得，在全球局势这么不稳定的当下，能多一个这样可以信赖、共同发展的伙伴，真的是一件非常明智的事情呢。祝贺他们的合作能开花结果咯 ヽ(✿ﾟ▽ﾟ)ノ</p>
+            </div>
+        </article>
+    </main>
+
+    <div id="detailsOverlay" class="modal-overlay" onclick="closeDetails(event)">
+        <div class="modal-content" onclick="event.stopPropagation()"> <button class="close-modal" onclick="forceCloseDetails()">×</button>
+            <div id="modalBody">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        const overlay = document.getElementById('detailsOverlay');
+        const modalBody = document.getElementById('modalBody');
+
+        // 🌟 核心功能：打开详情侧边栏
+        function openDetails(buttonElement) {
+            // A. 先找到这个按钮所在的 article 卡片
+            const currentArticle = buttonElement.closest('article');
+            // B. 抓取卡片里隐藏的详细简介区域
+            const hiddenTextDiv = currentArticle.querySelector('.hidden-detailed-text');
+            
+            // C. 如果没有找到隐藏的简介，就打印提示（防小Bug喵）
+            if (!hiddenTextDiv) {
+                modalBody.innerHTML = "<h2>喵呜！</h2><p>这首音频好像暂时还没有详细的简介哦喵。</p>";
+            } else {
+                // D. 聪明动作：把隐藏区里的 HTML 内容，原封不动地“克隆”到侧边栏里显示出来！
+                // 这意味着你可以在 HTML 的隐藏区里用任意 HTML 标签，比如列表、链接等，都会保留格式喵！
+                modalBody.innerHTML = hiddenTextDiv.innerHTML;
+            }
+
+            // E. 让侧边栏滑出来，并让背景变暗
+            overlay.classList.add('open');
+        }
+
+        // 🚪 核心功能：点击外面关闭侧边栏
+        function closeDetails(event) {
+            // 只有当点击的是调暗的背景区域（overlay）时才关闭喵
+            if (event.target === overlay) {
+                overlay.classList.remove('open');
+            }
+        }
+
+        // ❌ 核心功能：点击 '×' 强制关闭喵
+        function forceCloseDetails() {
+            overlay.classList.remove('open');
+        }
+
+        // 🎹 核心功能：按 Esc 键也能优雅地关闭喵
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && overlay.classList.contains('open')) {
+                forceCloseDetails();
+            }
+        });
+    </script>
+</body>
+</html>

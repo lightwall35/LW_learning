@@ -632,8 +632,8 @@ if st.session_state.page_now == 'me':
                             payload = {
                                 "text": text,                   
                                 "text_lang": text_lang,                          
-                                "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\nahida等11个文件\nahida\v1\推理音频\新鲜感，就是来源于生活中的小小仪式哦。.wav",  
-                                "prompt_text": "新鲜感，就是来源于生活中的小小仪式哦。",            
+                                "ref_audio_path": r"D:\GPT-SoVITS-v2pro-20250604-nvidia50\参考音频\先否定一些不可行的方案，会让即将提出要施行的计划变得更有分量，这可是教令院因论派中非常主流的观点。.wav",  
+                                "prompt_text": "先否定一些不可行的方案，会让即将提出要施行的计划变得更有分量，这可是教令院因论派中非常主流的观点。",            
                                 "prompt_lang": "zh",            
                                 "top_k": top_k,                   
                                 "top_p": top_p,                   
@@ -659,9 +659,10 @@ if st.session_state.page_now == 'me':
                                     "sovits_payload": payload,
                                     "if_music": if_music
                                 }
-                            with open("transfer_data.json", "w", encoding="utf-8") as f:
+                            json_save_path = r"E:\pycode\transfer_data.json"
+                            with open(json_save_path, "w", encoding="utf-8") as f:
                                 json.dump(data_to_send, f, ensure_ascii=False, indent=4)
-                            subprocess.run(["cmd.exe", "/c", BAT_PATH2], check=True, creationflags=subprocess.CREATE_NO_WINDOW)
+                            subprocess.run(["cmd.exe", "/c", BAT_PATH2], check=True, )#creationflags=subprocess.CREATE_NO_WINDOW)
                         except Exception as e:
                             st.error(f"连接 API 的时候遇到了一点小麻烦：{e}")
         

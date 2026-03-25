@@ -25,10 +25,10 @@ if %errorlevel% neq 0 (
     goto check_port
 )
 echo api 正在待命
-
+timeout /t 5 >nul
 :api_ready
 echo.
-echo 开始抓取新闻并发送配音请求...
+
 C:\Users\minec\miniconda3\envs\tts_env\python.exe "E:\pycode\webui_submmit_request.py"
 
 for %%f in (E:\pycode\otp\*.wav) do (

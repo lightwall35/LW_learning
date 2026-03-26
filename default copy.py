@@ -89,18 +89,18 @@ if os.path.exists(bgm_folder):
 target_length = len(audio) + 4000
 
 special_rules = {
-    "罗辑": 4.2727,   
-    "Eyes of Irumyuui": 4.2727, 
-    "Adventure Through the Light": 4.2727 ,
-    "Nature Sequence. 6th Layer": 6.2727 ,
-    "old stories": 4.2727 ,
-    "Reg & his Interference Unit": 4.2727,
-    "Sufjan Stevens - Death with Dignity": 6.2727,
-    "Tomorrowland": 6.2727,
-    "undertale": 4.2727,
-    "where dream rest": 4.2727, 
-    "深渊的琴槌": 4.2727,  
-    "星茶会": 4.2727        
+    "罗辑": 1.2727,   
+    "Eyes of Irumyuui": 1.2727, 
+    "Adventure Through the Light": 1.2727 ,
+    "Nature Sequence. 6th Layer": 1.2727 ,
+    "old stories": 1.2727 ,
+    "Reg & his Interference Unit": 1.2727,
+    "Sufjan Stevens - Death with Dignity": 1.2727,
+    "Tomorrowland": 1.2727,
+    "undertale": 1.2727,
+    "where dream rest": 1.2727, 
+    "深渊的琴槌": 1.2727,  
+    "星茶会": 3.2727        
     
 }
 scored_bgms = []
@@ -135,7 +135,7 @@ while len(audio_bgm) < target_length:
     else:
         audio_bgm = audio_bgm + silence + audio_bgm
 
-audio_bgm = audio_bgm - 9
+audio_bgm = audio_bgm - 11
 audio_bgm = audio_bgm[:target_length].fade_out(4000)
 overlayed_audio = audio_bgm.overlay(audio, position=0)
 save_folder = r"E:\pycode\otp"

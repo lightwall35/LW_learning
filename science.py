@@ -174,7 +174,7 @@ elapsed_time = end_time - start_time
 overlayed_audio.export(full_path, format="wav")
 
 # ================= 5. 使用 DeepSeek 总结新闻 =================
-print("正在呼叫 DeepSeek 为播报撰写精美简介...")
+print("正在呼叫 DeepSeek 撰写简介...")
 try:
     ds_headers = {
         "Authorization": "Bearer sk-4477c3b031984876a1a8b6860eefd7d7",
@@ -204,4 +204,4 @@ try:
 except Exception as e:
     print(f"撰写简介时出现错误：{e}")
 
-print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")
+print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")

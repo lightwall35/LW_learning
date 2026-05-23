@@ -34,6 +34,22 @@ C:\Users\minec\miniconda3\envs\tts_env\python.exe "E:\pycode\science.py"
 for %%f in (E:\pycode\otp\*.wav) do (
     ffmpeg -i "%%f" -b:a 128k "%%~dpnf.mp3" && del "%%f"
 )
+
+echo.
+echo ==============================================
+echo             正在自动同步展示网站数据...
+echo ==============================================
+C:\Users\minec\miniconda3\envs\tts_env\python.exe -X utf8 "E:\pycode-serious\audio_site\sync_audio.py"
+
+echo.
+echo ==============================================
+echo             正在自动推送到 GitHub Pages...
+echo ==============================================
+cd /d "E:\pycode-serious\audio_site"
+git add .
+git commit -m "Auto update: new synthetic audio and summary added"
+git push
+
 echo.
 echo ==============================================
 echo                      END

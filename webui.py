@@ -356,7 +356,7 @@ if st.session_state.page_now == 'me':
             temperature = st.slider("temperature", 0.1, 2.0, 1.0, key="temp_slider")
             batch_size = st.slider("batch_size", 1, 8, 1, key="batch_size_slider")
             batch_threshold = st.slider("batch_threshold", 0.0, 1.0, 0.75, key="batch_threshold_slider") 
-            text_split_method = st.segmented_control("文本切分方式", options=["cut5", "cut10", "cut20", "none"],default="cut5",key="split_method_control")
+            text_split_method = st.segmented_control("文本切分方式", options=["cut5", "cut4", "cut3", "cut2", "cut1", "cut0"],default="cut5",key="split_method_control")
         with col_l:      
             speed_factor = st.slider("speed_factor", 0.5, 2.0, 1.0, key="speed_factor_slider")
             fragment_interval = st.slider("fragment_interval", 0.0, 1.0, 0.3, key="fragment_interval_slider")

@@ -172,4 +172,36 @@ elapsed_time = end_time - start_time
 
 
 overlayed_audio.export(full_path, format="wav")
-print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")
+
+# ================= 5. 使用 DeepSeek 总结新闻 =================
+print("正在呼叫 DeepSeek 为播报撰写精美简介...")
+try:
+    ds_headers = {
+        "Authorization": "Bearer sk-4477c3b031984876a1a8b6860eefd7d7",
+        "Content-Type": "application/json"
+    }
+    ds_payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "你是一个资深播客主理人。请将提供的新闻内容总结为一段50到80字的中文引言，风格清新自然、引人入胜。只输出总结文本，不要任何格式和多余的寒暄。"},
+            {"role": "user", "content": result}
+        ],
+        "temperature": 0.7
+    }
+    ds_response = requests.post("https://api.deepseek.com/chat/completions", headers=ds_headers, json=ds_payload, timeout=60)
+    if ds_response.status_code == 200:
+        summary_text = ds_response.json()["choices"][0]["message"]["content"].strip()
+        text_data_folder = r"E:\pycode\text_data"
+        if not os.path.exists(text_data_folder):
+            os.makedirs(text_data_folder)
+        json_path = os.path.join(text_data_folder, f"{time_str}.json")
+        import json
+        with open(json_path, "w", encoding="utf-8") as f:
+            json.dump({"summary": summary_text, "original": result}, f, ensure_ascii=False, indent=4)
+        print("简介与原文已封装存入 text_data 目录！")
+    else:
+        print(f"DeepSeek 请求失败：{ds_response.status_code} - {ds_response.text}")
+except Exception as e:
+    print(f"撰写简介时出现错误：{e}")
+
+print(f"工作全部完成啦！一共花掉了 {elapsed_time:.4f} 秒呢")

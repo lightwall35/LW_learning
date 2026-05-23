@@ -1,0 +1,13 @@
+# Ignore generated audio and text files
+otp/
+text_data/
+
+# Ignore Python cache
+__pycache__/
+*.pyc
+
+# Ignore transfer data
+transfer_data.json
+
+# Ignore cloud drive temp uploads
+.tmp.driveupload/

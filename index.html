@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不会消失的温度</title>
+    <!-- Google Fonts 带来现代排版 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 浅色清新磨砂玻璃参数 */
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.6);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --text-color: #2c3e50;
+            --text-light: #546e7a;
+            --panel-width: 700px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            overflow-x: hidden;
+            background-color: #f0f0f0;
+            padding-top: 60px;
+            padding-bottom: 60px;
+        }
+
+        /* 动态模糊背景层 */
+        #bg-layer {
+            position: fixed;
+            top: -10%;
+            left: -10%;
+            width: 120%;
+            height: 120%;
+            background-size: cover;
+            background-position: center;
+            /* 高斯模糊与提亮，营造清新感 */
+            filter: blur(25px) brightness(1.05) saturate(1.2);
+            z-index: -1;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        /* 主容器 */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            transition: transform 0.4s ease;
+        }
+
+        /* 当侧边栏打开时，主页面稍微向右推 (给原文让出呼吸空间) */
+        body.panel-open .container {
+            transform: translateX(calc(var(--panel-width) / 2));
+        }
+
+        @media (max-width: 900px) {
+            body.panel-open .container {
+                transform: translateX(0);
+                /* 移动端不推，直接盖住 */
+            }
+        }
+
+        /* 头部标题区域 */
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            color: #fff;
+            text-shadow: 0 2px 15px rgba(0, 0, 0, 0.25);
+            animation: fadeInDown 0.8s ease;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        header p {
+            font-weight: 300;
+            font-size: 1.1rem;
+            opacity: 0.95;
+            letter-spacing: 1px;
+        }
+
+        /* 毛玻璃卡片主体 */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 28px;
+            color: var(--text-color);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s forwards;
+        }
+
+        /* 给列表卡片做交错动画加载 */
+        .glass-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .glass-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .glass-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .glass-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .glass-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 15px 40px 0 rgba(31, 38, 135, 0.15);
+            background: rgba(255, 255, 255, 0.55);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding-bottom: 14px;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a252f;
+        }
+
+        .card-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.5);
+            padding: 5px 14px;
+            border-radius: 20px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card-summary {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            color: #34495e;
+            font-weight: 400;
+            text-align: justify;
+        }
+
+        .card-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        /* 阅读原文按钮 */
+        .btn-read {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            color: var(--text-color);
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-read:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 原生音频播放器美化 */
+        .custom-audio {
+            width: 100%;
+            height: 48px;
+            border-radius: 24px;
+            outline: none;
+            opacity: 0.75;
+            transition: opacity 0.3s;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.05));
+        }
+
+        .custom-audio:hover {
+            opacity: 1;
+        }
+
+        /* 播放中的音频跳动柱状图效果 */
+        .playing-indicator {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            height: 18px;
+            margin-left: 12px;
+        }
+
+        .playing-indicator.active {
+            display: flex;
+        }
+
+        .bar {
+            width: 4px;
+            background: #e74c3c;
+            border-radius: 4px;
+            animation: bounce 1s infinite ease-in-out;
+        }
+
+        .bar:nth-child(1) {
+            height: 60%;
+            animation-delay: 0s;
+        }
+
+        .bar:nth-child(2) {
+            height: 100%;
+            animation-delay: 0.1s;
+        }
+
+        .bar:nth-child(3) {
+            height: 50%;
+            animation-delay: 0.2s;
+        }
+
+        .bar:nth-child(4) {
+            height: 80%;
+            animation-delay: 0.3s;
+        }
+
+        /* ================= 侧滑面板 UI ================= */
+        #side-panel {
+            position: fixed;
+            top: 0;
+            left: calc(-1 * var(--panel-width));
+            /* 默认隐藏在左侧屏幕外 */
+            width: var(--panel-width);
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-right: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+            transition: left 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        body.panel-open #side-panel {
+            left: 0;
+        }
+
+        .panel-header {
+            padding: 30px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            color: #1a252f;
+            font-weight: 600;
+        }
+
+        .btn-close {
+            background: rgba(0, 0, 0, 0.05);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #555;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn-close:hover {
+            background: #e74c3c;
+            color: #fff;
+            transform: rotate(90deg);
+        }
+
+        .panel-content {
+            padding: 30px;
+            overflow-y: auto;
+            flex: 1;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #34495e;
+            white-space: pre-wrap;
+            /* 保持新闻原本的换行格式 */
+        }
+
+        .panel-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .panel-content::-webkit-scrollbar-thumb {
+            background-color: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
+        }
+
+        /* 面板防挡遮罩层（供移动端使用，点击遮罩也可关闭） */
+        #panel-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            z-index: 90;
+        }
+
+        body.panel-open #panel-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* ================= 动画定义 ================= */
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scaleY(0.4);
+            }
+
+            50% {
+                transform: scaleY(1);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 空状态提示 */
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #fff;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 600px) {
+            :root {
+                --panel-width: 100%;
+                /* 手机上全屏显示面板 */
+            }
+
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .playing-indicator {
+                margin-left: 0;
+            }
+
+            .btn-close {
+                background: rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 动态模糊背景 -->
+    <div id="bg-layer"></div>
+
+    <!-- 侧滑面板叠加层 -->
+    <div id="panel-overlay"></div>
+
+    <!-- 侧滑原文面板 -->
+    <aside id="side-panel">
+        <div class="panel-header">
+            <div class="panel-title" id="panel-title">新闻原文</div>
+            <button class="btn-close" id="btn-close-panel" title="关闭">✕</button>
+        </div>
+        <div class="panel-content" id="panel-content">
+            <!-- 原文将被注入这里 -->
+        </div>
+    </aside>
+
+    <div class="container">
+        <header>
+            <h1>曦光碎影</h1>
+            <p>偷闲浮生，邃谷泉鸣</p>
+        </header>
+
+        <main id="audio-list">
+            <!-- 卡片由 JS 动态注入 -->
+        </main>
+    </div>
+
+    <!-- 引入刚刚生成的配置和数据 -->
+    <script src="data.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. 设置背景图
+            const bgLayer = document.getElementById('bg-layer');
+            if (typeof siteConfig !== 'undefined' && siteConfig.background) {
+                bgLayer.style.backgroundImage = `url('${siteConfig.background}')`;
+            } else {
+                // 默认备用背景
+                bgLayer.style.backgroundImage = `url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809')`;
+            }
+
+            const listContainer = document.getElementById('audio-list');
+
+            // 侧滑面板控制逻辑
+            const panel = document.getElementById('side-panel');
+            const overlay = document.getElementById('panel-overlay');
+            const closeBtn = document.getElementById('btn-close-panel');
+            const panelTitle = document.getElementById('panel-title');
+            const panelContent = document.getElementById('panel-content');
+
+            function openPanel(title, content) {
+                panelTitle.textContent = title;
+                panelContent.textContent = content; // 使用 textContent 避免 xss，且可保持 pre-wrap 换行
+                document.body.classList.add('panel-open');
+            }
+
+            function closePanel() {
+                document.body.classList.remove('panel-open');
+            }
+
+            closeBtn.addEventListener('click', closePanel);
+            overlay.addEventListener('click', closePanel); // 点击空白处关闭
+
+            // 2. 检查是否有数据
+            if (typeof audioData === 'undefined' || audioData.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">当前没有最新资讯，快去工作站合成一些吧！</div>`;
+                return;
+            }
+
+            // 3. 渲染卡片
+            audioData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'glass-card';
+
+                // 生成 DOM 结构
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                            <h2 class="card-title">${item.title}</h2>
+                            <div class="playing-indicator" id="indicator-${index}">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                        <span class="card-date">${item.date}</span>
+                    </div>
+                    <div class="card-summary">
+                        ${item.summary}
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-read" id="btn-read-${index}">📖 阅读原文</button>
+                    </div>
+                    <audio id="audio-${index}" class="custom-audio" controls preload="metadata">
+                        <source src="${item.audio}" type="audio/mpeg">
+                        <source src="${item.audio.replace('.mp3', '.wav')}" type="audio/wav">
+                        您的浏览器不支持音频播放。
+                    </audio>
+                `;
+
+                listContainer.appendChild(card);
+
+                // 绑定阅读原文事件
+                const readBtn = card.querySelector(`#btn-read-${index}`);
+                readBtn.addEventListener('click', () => {
+                    openPanel(`原文内容：${item.title}`, item.original || "抱歉，由于时空乱流，无法找到这篇报道的原文数据喵~");
+                });
+
+                // 4. 绑定播放器事件，实现唯一播放和音频可视化效果
+                const audioElement = card.querySelector(`#audio-${index}`);
+                const indicator = card.querySelector(`#indicator-${index}`);
+
+                audioElement.addEventListener('play', () => {
+                    // 暂停其他所有正在播放的音频
+                    document.querySelectorAll('audio').forEach(aud => {
+                        if (aud !== audioElement) aud.pause();
+                    });
+                    // 显示跳动动画
+                    indicator.classList.add('active');
+                    // 卡片视觉反馈
+                    card.style.borderColor = "rgba(255, 255, 255, 1)";
+                    card.style.transform = "translateY(-5px) scale(1.02)";
+                });
+
+                audioElement.addEventListener('pause', () => {
+                    indicator.classList.remove('active');
+                    card.style.borderColor = "var(--glass-border)";
+                    card.style.transform = "";
+                });
+
+                audioElement.addEventListener('ended', () => {
+                    indicator.classList.remove('active');
+                    card.style.borderColor = "var(--glass-border)";
+                    card.style.transform = "";
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

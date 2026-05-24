@@ -47,8 +47,8 @@ echo             正在自动推送到 GitHub Pages...
 echo ==============================================
 cd /d "E:\pycode-serious\audio_site"
 git add .
-git commit -m "Auto update: new synthetic audio and summary added"
-git push
+git commit --amend --no-edit
+git push -f
 
 echo.
 echo ==============================================

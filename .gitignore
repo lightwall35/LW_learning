@@ -6,6 +6,9 @@ text_data/
 __pycache__/
 *.pyc
 
+# Ignore API keys and sensitive config
+api_key.txt
+
 # Ignore transfer data
 transfer_data.json
 

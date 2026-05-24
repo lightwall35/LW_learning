@@ -176,8 +176,11 @@ overlayed_audio.export(full_path, format="wav")
 # ================= 5. 使用 DeepSeek 总结新闻 =================
 print("正在呼叫 DeepSeek 撰写简介...")
 try:
+    with open(r"E:\pycode\api_key.txt", "r", encoding="utf-8") as f:
+        api_key = f.read().strip()
+    
     ds_headers = {
-        "Authorization": "Bearer sk-4477c3b031984876a1a8b6860eefd7d7",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     ds_payload = {

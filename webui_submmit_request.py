@@ -29,7 +29,7 @@ with open(json_file_path, "r", encoding="utf-8") as f:
 
 response = requests.post("http://127.0.0.1:9880/tts", json=received_payload)
 if response.status_code == 200:
-    if if_music:
+    if if_music and str(if_music).lower() not in ["false", "off", "0", "none"]:
         virtual_file = io.BytesIO(response.content)
         silence = AudioSegment.silent(duration=2000)
         audio = AudioSegment.from_file(virtual_file, format="wav")

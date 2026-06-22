@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Audio Journey Workstation</title>
     <style>
-        /* === RESET & GLOBALS === */
         * {
             box-sizing: border-box;
         }
@@ -21,7 +20,6 @@
             color: #2e7d32;
         }
 
-        /* === BACKGROUND & BLUR === */
         #global_bg {
             position: fixed;
             top: 0;
@@ -37,7 +35,6 @@
             background-color: transparent;
         }
 
-        /* === TOP NAVIGATION === */
         .top-nav {
             max-width: 800px;
             margin-left: auto;
@@ -63,7 +60,6 @@
             color: #81c784;
         }
 
-        /* === LAYOUT CONTAINERS === */
         .page {
             display: none;
             padding: 0 2rem;
@@ -111,7 +107,6 @@
             flex-direction: column;
         }
 
-        /* === TYPOGRAPHY === */
         .main-title {
             font-size: 4.5rem;
             font-weight: 700;
@@ -123,7 +118,6 @@
             animation: fadeInUp 1s ease-out;
         }
 
-        /* === BUTTONS === */
         button {
             cursor: pointer;
             font-family: 'Helvetica Neue', sans-serif;
@@ -168,7 +162,6 @@
             color: #81c784;
         }
 
-        /* === FOREGROUND IMAGE === */
         .img-container {
             position: relative;
             width: 100%;
@@ -192,7 +185,6 @@
             transition: background-image 0.5s ease-in-out;
         }
 
-        /* === AUDIO GLASS BOX === */
         .audio-glass-box {
             background: rgba(255, 255, 255, 0.01);
             backdrop-filter: blur(12px);
@@ -308,7 +300,6 @@
             animation-delay: 0.2s;
         }
 
-        /* === AUDIO PLAYER === */
         .audio-wrapper {
             position: relative;
             margin-top: -100px;
@@ -328,7 +319,6 @@
             border-radius: 20px;
         }
 
-        /* === CUSTOM SELECT (List mode) === */
         select.glass-select {
             width: 100%;
             background-color: rgba(255, 255, 255, 0.4);
@@ -354,7 +344,6 @@
             font-weight: bold;
         }
 
-        /* === CUSTOM AUDIO GRID DROPDOWN === */
         .audio-grid-panel {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -369,8 +358,16 @@
             border-radius: 15px;
             margin-top: 8px;
         }
-        .audio-grid-panel::-webkit-scrollbar { width: 6px; }
-        .audio-grid-panel::-webkit-scrollbar-thumb { background: #a5d6a7; border-radius: 3px; }
+
+        .audio-grid-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .audio-grid-panel::-webkit-scrollbar-thumb {
+            background: #a5d6a7;
+            border-radius: 3px;
+        }
+
         .audio-grid-item {
             padding: 10px 12px;
             background: rgba(255, 255, 255, 0.35);
@@ -384,18 +381,19 @@
             border: 2px solid transparent;
             word-break: break-all;
         }
+
         .audio-grid-item:hover {
             background: rgba(165, 214, 167, 0.5);
             border-color: #66bb6a;
             transform: translateY(-2px);
         }
+
         .audio-grid-item.active {
             background: linear-gradient(135deg, #a5d6a7, #66bb6a);
             color: white;
             border-color: #4caf50;
         }
 
-        /* === ME PAGE FORM STYLES === */
         textarea.glass-textarea {
             position: relative;
             width: 120%;
@@ -436,7 +434,6 @@
             margin-top: 15px;
         }
 
-        /* Custom Range Slider */
         input[type=range] {
             -webkit-appearance: none;
             width: 100%;
@@ -462,7 +459,6 @@
             border-radius: 4px;
         }
 
-        /* Toggle Checkbox switch mimicking st.toggle scale(3) */
         .toggle-switch-wrapper {
             display: flex;
             flex-direction: column;
@@ -519,7 +515,6 @@
             background-color: white;
         }
 
-        /* Layout Grid */
         .btn-grid {
             display: flex;
             flex-wrap: wrap;
@@ -542,7 +537,6 @@
             text-align: center;
         }
 
-        /* Overlay Spinners/Toast */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -623,14 +617,12 @@
     <div id="global_bg" class="app-bg"></div>
     <button class="btn-secondary" id="page-toggle-btn" onclick="togglePage()">me</button>
 
-    <!-- MAIN PAGE -->
     <div id="page-main" class="page active">
         <div class="top-nav"><span class="nav-item">WHEN I REALLISE TAHT THIS IS A USELESS TOP NAVIGATION EVERYTHING HAS
                 BEEN TOO LATE</span></div>
         <br><br><br>
 
         <div class="row-main">
-            <!-- Left vertically aligned visual block -->
             <div class="col-left-main">
                 <div class="img-container">
                     <div class="foreground-magic-layer" id="fg_layer"></div>
@@ -669,7 +661,6 @@
                 </div>
             </div>
 
-            <!-- Right control panel -->
             <div class="col-right-main">
                 <div class="main-title">Embark on your audio journey with me</div>
 
@@ -691,7 +682,6 @@
         </div>
     </div>
 
-    <!-- ME PAGE (CONFIG) -->
     <div id="page-me" class="page">
         <br><br><br>
         <div class="row-me">
@@ -809,19 +799,15 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast">Message</div>
 
     <script>
-        // ==================== JS CONTROLLERS ====================
-        // Assume hosted on the same origin or modify API_BASE if testing externally
         const API_BASE = "http://127.0.0.1:8000";
         let bgList = [];
         let fgList = [];
         let bgIndex = 0;
         let fgIndex = 0;
 
-        // On Mount
         window.onload = async () => {
             try {
                 const r = await fetch(`${API_BASE}/api/init_data`);
@@ -837,11 +823,9 @@
 
         function formatUrl(path) {
             if (path.startsWith("http")) return path;
-            // Encode windows paths correctly for query parameter routing
             return `${API_BASE}/api/file?path=${encodeURIComponent(path)}`;
         }
 
-        // Visual Changers
         function applyBg() {
             if (bgList.length > 0) {
                 document.getElementById("global_bg").style.backgroundImage = `url("${formatUrl(bgList[bgIndex])}")`;
@@ -865,7 +849,6 @@
             }
         }
 
-        // Router
         function togglePage() {
             const btn = document.getElementById("page-toggle-btn");
             const mMain = document.getElementById("page-main");
@@ -881,7 +864,6 @@
             }
         }
 
-        // List Mode Handling
         let isListVisible = false;
         let selectedAudioFile = "";
         async function toggleAudioList() {
@@ -928,7 +910,6 @@
                 aGlass.style.display = "flex";
                 aWrap.style.display = "block";
                 document.getElementById("audio_file_label").innerText = `当前文件: ${fn}`;
-                // Proxy audio file stream via api/file route
                 audioEl.src = `${API_BASE}/api/file?path=${encodeURIComponent("E:\\pycode\\otp\\" + fn)}`;
                 audioEl.play().catch(e => console.log("Auto-play prevented"));
             } else {
@@ -938,7 +919,6 @@
             }
         }
 
-        // Animations Sync TrackeR
         const audioTag = document.getElementById("main_audio");
         const bars = document.querySelectorAll(".bar");
         function updateBars() {
@@ -950,7 +930,6 @@
         audioTag.addEventListener("pause", updateBars);
         audioTag.addEventListener("ended", updateBars);
 
-        // Background Batch Exec
         async function reqBat(type) {
             showToast("指令发出中...");
             try {
@@ -960,12 +939,11 @@
             } catch (e) { showToast("请求执行失败，可能是Server未启动"); }
         }
 
-        // Synthesis Construction
         async function submitSynth() {
             const text = document.getElementById("my_glass_textarea").value;
             if (!text) { showToast("木有文字(>_<)"); return; }
 
-            showToast("打包装车中...");
+            showToast("打包中...");
             const payload = {
                 sovits_payload: {
                     "text": text,
@@ -1007,7 +985,6 @@
             }
         }
 
-        // User Feedback Utils
         function showToast(msg) {
             const t = document.getElementById("toast");
             t.innerText = msg;

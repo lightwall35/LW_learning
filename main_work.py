@@ -11,10 +11,14 @@ import io
 from pydub import AudioSegment
 import random 
 import math
+import sys
 
 
 # ================= 1. 获取新闻 =================
-rss_url = "https://www.sciencedaily.com/rss/top/science.xml"
+if len(sys.argv) < 2:
+    print("【错误】没有收到 RSS 链接参数！")
+    exit(1)
+rss_url = sys.argv[1]
 news_feed = feedparser.parse(rss_url)
 article_list=[]
 
@@ -60,6 +64,10 @@ for entry in news_feed.entries[:5]:
     i = i+1
 
       
+if not article_list:
+    print("【错误】哎呀，这批新闻全军覆没，一篇都没抓到呢，退出配音流程...")
+    exit(1)
+    
 result = "\n\n\nThe next:\n\n\n".join(article_list)
 
 print(result)
@@ -149,17 +157,18 @@ scored_bgms.sort(key=lambda x: x[0], reverse=True)
 
 candidate_bgms = [item[1] for item in scored_bgms]
     
+if not candidate_bgms:
+    print("【错误】没有找到任何背景音乐，合成失败！")
+    exit(1)
+
 audio_bgm =  AudioSegment.from_file(candidate_bgms[0])
 
 current_bgm_index = 1
 while len(audio_bgm) < target_length:
-    if candidate_bgms:
-        random_path = candidate_bgms[current_bgm_index]
-        next_bgm = AudioSegment.from_file(random_path)
-        audio_bgm = audio_bgm + silence + next_bgm
-        current_bgm_index += 1       
-    else:
-        audio_bgm = audio_bgm + silence + audio_bgm
+    random_path = candidate_bgms[current_bgm_index % len(candidate_bgms)]
+    next_bgm = AudioSegment.from_file(random_path)
+    audio_bgm = audio_bgm + silence + next_bgm
+    current_bgm_index += 1       
 
 audio_bgm = audio_bgm - 11
 audio_bgm = audio_bgm[:target_length].fade_out(4000)
@@ -184,9 +193,9 @@ try:
         "Content-Type": "application/json"
     }
     ds_payload = {
-        "model": "deepseek-chat",
+        "model": "deepseek-v4-flash",
         "messages": [
-            {"role": "system", "content": "你是一个资深播客主理人。请将提供的新闻内容总结为一段50到80字的中文引言，风格清新自然、引人入胜。只输出总结文本，不要任何格式和多余的寒暄。"},
+            {"role": "system", "content": "你将会收到一段包含5篇文章的英文新闻，你需要用中文总结这些新闻，连贯、自然、生动、简洁，适合作为简介。只输出总结的一整段文本，不需要任何多余的解释。注意不要遗漏任何新闻。谢谢啦"},
             {"role": "user", "content": result}
         ],
         "temperature": 0.7

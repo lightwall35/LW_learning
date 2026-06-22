@@ -25,8 +25,8 @@ BACKGROUND_IMAGE = "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc
 BLUR_RADIUS = "6px" 
 MAIN_TITLE = "Embark on your audio journey with me" 
 
-BAT_PATH = "E:\\pycode\\auto.bat"
-BAT_PATH1 = "E:\\pycode\\auto_science.bat"
+BAT_PATH = "E:\\pycode\\global.bat"
+BAT_PATH1 = "E:\\pycode\\science.bat"
 BAT_PATH2 = "E:\\pycode\\webui_request.bat"
 AUDIO_DIR = "E:\\pycode\\otp"
 

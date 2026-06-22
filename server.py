@@ -12,7 +12,7 @@ import uvicorn
 
 app = FastAPI()
 
-# Allow CORS for development
+#跨域资源共享
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -23,11 +23,11 @@ app.add_middleware(
 
 img_folder = r"E:\selected_pictures"
 AUDIO_DIR = r"E:\pycode\otp"
-BAT_PATH = r"E:\pycode\auto.bat"
-BAT_PATH1 = r"E:\pycode\auto_science.bat"
+BAT_PATH = r"E:\pycode\global.bat"
+BAT_PATH1 = r"E:\pycode\science.bat"
 BAT_PATH2 = r"E:\pycode\webui_request.bat"
 
-# Cache list
+#缓存列表
 cached_fg = []
 cached_bg = []
 is_cached = False
@@ -66,14 +66,14 @@ def init_images():
 
 @app.on_event("startup")
 def startup_event():
-    print("API Server initializing images...")
+    print("初始化图片ing...\n")
     init_images()
 
 @app.get("/")
 def serve_index():
     path = "index.html"
     if not os.path.exists(path):
-        return HTMLResponse(content="<h1>index.html not found! Make sure it's in the same directory as server.py</h1>", status_code=404)
+        return HTMLResponse(content="<h1>呜呜呜没有找到index.html！确定与server.py在同一个文件夹吗？</h1>", status_code=404)
     with open(path, "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
@@ -103,12 +103,12 @@ def run_bat(bat_type: str):
     try:
         if bat_type == "global":
             subprocess.Popen(["cmd.exe", "/c", BAT_PATH], creationflags=subprocess.CREATE_NO_WINDOW)
-            return {"status": "success", "msg": "Global batch task started in background."}
+            return {"status": "success", "msg": "已开始配音任务"}
         elif bat_type == "science":
             subprocess.Popen(["cmd.exe", "/c", BAT_PATH1], creationflags=subprocess.CREATE_NO_WINDOW)
-            return {"status": "success", "msg": "Science batch task started in background."}
+            return {"status": "success", "msg": "已开始配音任务"}
         else:
-            return JSONResponse({"error": "Unknown bat type"}, status_code=400)
+            return JSONResponse({"error": "未知脚本类型！"}, status_code=400)
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -128,7 +128,7 @@ def synth(payload: SynthPayload):
             json.dump(data_to_send, f, ensure_ascii=False, indent=4)
             
         subprocess.Popen(["cmd.exe", "/c", BAT_PATH2], creationflags=subprocess.CREATE_NO_WINDOW)
-        return {"status": "success", "msg": "Synthesis task dispatched!"}
+        return {"status": "success", "msg": "合成任务已提交！"}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
